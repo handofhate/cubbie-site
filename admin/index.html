@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Cubbie Admin</title>
+  <link rel="icon" href="../cubbieicon.png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #3B7A57;
+      --green2:  #2D5A3D;
+      --dark:    #1C2B22;
+      --honey:   #F2A65A;
+      --red:     #E05555;
+      --blue:    #3B82F6;
+      --yellow:  #F59E0B;
+      --light:   #F4FAF6;
+      --border:  #D4E8DB;
+      --muted:   #6B8076;
+      --text:    #2A3D33;
+      --sidebar: 240px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── Login Screen ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1C3A27 0%, #2D5A3D 55%, #3B7A57 100%);
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+
+    .login-card h1 { font-size: 1.6rem; font-weight: 900; color: var(--dark); margin-bottom: 8px; }
+    .login-card p  { color: var(--muted); margin-bottom: 32px; font-size: 0.92rem; }
+
+    /* ── Layout ── */
+    #dashboard { display: flex; min-height: 100vh; }
+
+    #sidebar {
+      width: var(--sidebar);
+      background: var(--dark);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--honey);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .sidebar-user {
+      padding: 14px 20px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      word-break: break-all;
+    }
+
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.65);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(242,166,90,0.15); color: var(--honey); }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--honey);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 50px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    #main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      padding: 32px;
+      max-width: calc(100vw - var(--sidebar));
+    }
+
+    /* ── Panels ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--dark);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .field p {
+      font-size: 0.92rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .card-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .card-map-link {
+      font-size: 0.78rem;
+      color: var(--muted);
+      word-break: break-all;
+      background: var(--light);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-green  { background: var(--green);  color: #fff; }
+    .btn-red    { background: var(--red);    color: #fff; }
+    .btn-blue   { background: var(--blue);   color: #fff; }
+    .btn-honey  { background: var(--honey);  color: #fff; }
+    .btn-dark   { background: var(--dark);   color: #fff; }
+    .btn-ghost  { background: transparent;   color: var(--muted); border: 1px solid var(--border); }
+    .btn-google {
+      background: #fff;
+      color: #444;
+      border: 1px solid #ddd;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-google:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    /* ── Badges ── */
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+    .badge-green  { background: #D1FAE5; color: #065F46; }
+    .badge-red    { background: #FEE2E2; color: #991B1B; }
+    .badge-yellow { background: #FEF3C7; color: #92400E; }
+    .badge-blue   { background: #DBEAFE; color: #1E40AF; }
+
+    /* ── Search / Sort row ── */
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-row input, .filter-row select {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .filter-row input:focus, .filter-row select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(59,122,87,0.1);
+    }
+
+    .filter-row input { flex: 1; min-width: 200px; }
+
+    /* ── Issue tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--border);
+      padding: 4px;
+      border-radius: 10px;
+      width: fit-content;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.88rem;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: var(--green);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+      margin: auto;
+    }
+
+    .modal h2 { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin-bottom: 20px; }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      background: none; border: none;
+      font-size: 1.3rem; cursor: pointer;
+      color: var(--muted); line-height: 1;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      outline: none;
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(59,122,87,0.1);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+
+    .radio-group input[type="radio"] { display: none; }
+
+    .radio-group input[type="radio"]:checked + span,
+    .radio-group label:has(input:checked) {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .radio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+
+    .radio-pill input { position: absolute; opacity: 0; }
+    .radio-pill:has(input:checked) {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      animation: slideIn 0.25s ease;
+      max-width: 320px;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(120%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    .toast-success { background: var(--green); }
+    .toast-error   { background: var(--red); }
+    .toast-warning { background: var(--yellow); color: var(--dark); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .empty .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ── Utilities ── */
+    .hidden { display: none !important; }
+    .fade-out { opacity: 0; transform: translateY(-16px); transition: all 0.4s; }
+
+    .rating-positive { color: #059669; font-weight: 700; }
+    .rating-negative { color: var(--red); font-weight: 700; }
+    .rating-neutral  { color: var(--muted); font-weight: 700; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══ Toast ══ -->
+<div id="toast-container"></div>
+
+<!-- ══ Login ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size:2.5rem; margin-bottom:12px;">🐻</div>
+    <h1>Cubbie Admin</h1>
+    <p>Sign in with your admin Google account to continue.</p>
+    <button class="btn btn-google" id="login-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign in with Google
+    </button>
+    <p style="margin-top:16px; font-size:0.78rem; color:var(--muted);">Access restricted to authorized admins only.</p>
+  </div>
+</div>
+
+<!-- ══ Dashboard ══ -->
+<div id="dashboard" class="hidden">
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <img src="../cubbieicon.png" alt="Cubbie" onerror="this.style.display='none'" />
+      Cubbie Admin
+    </div>
+    <div class="sidebar-user" id="sidebar-email">—</div>
+    <div class="sidebar-nav">
+      <button class="nav-item active" data-panel="pending">
+        📋 Pending Approvals <span class="nav-badge hidden" id="pending-badge">0</span>
+      </button>
+      <button class="nav-item" data-panel="live">
+        🗺️ Live Locations
+      </button>
+      <button class="nav-item" data-panel="issues">
+        ⚠️ Issues <span class="nav-badge hidden" id="issues-badge">0</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost" id="signout-btn" style="width:100%; justify-content:center;">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main id="main">
+
+    <!-- ── Pending Panel ── -->
+    <section class="panel active" id="panel-pending">
+      <div class="panel-header">
+        <div class="panel-title">Pending Approvals</div>
+        <button class="btn btn-ghost" id="refresh-pending">↻ Refresh</button>
+      </div>
+      <div id="pending-list"><div class="empty"><div class="empty-icon">⏳</div>Loading...</div></div>
+    </section>
+
+    <!-- ── Live Panel ── -->
+    <section class="panel" id="panel-live">
+      <div class="panel-header">
+        <div class="panel-title">Live Locations</div>
+        <button class="btn btn-ghost" id="refresh-live">↻ Refresh</button>
+      </div>
+      <div class="filter-row">
+        <input type="text" id="live-search" placeholder="Search by name or address…" />
+        <select id="live-sort">
+          <option value="recent">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="nameAsc">Name A–Z</option>
+          <option value="nameDesc">Name Z–A</option>
+        </select>
+      </div>
+      <div id="live-list"><div class="empty"><div class="empty-icon">🗺️</div>Loading...</div></div>
+    </section>
+
+    <!-- ── Issues Panel ── -->
+    <section class="panel" id="panel-issues">
+      <div class="panel-header">
+        <div class="panel-title">Issue Tracker</div>
+        <button class="btn btn-ghost" id="refresh-issues">↻ Refresh</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" data-issues-tab="open">Open</button>
+        <button class="tab-btn" data-issues-tab="resolved">Resolved</button>
+      </div>
+      <div id="issues-open-list"><div class="empty"><div class="empty-icon">⚠️</div>Loading...</div></div>
+      <div id="issues-resolved-list" class="hidden"><div class="empty"><div class="empty-icon">✅</div>Loading...</div></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ Edit Location Modal ══ -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <button class="modal-close" id="edit-modal-close">✕</button>
+    <h2 id="edit-modal-title">Edit Location</h2>
+    <input type="hidden" id="edit-id" />
+    <input type="hidden" id="edit-mode" /> <!-- 'pending-approve' | 'live' -->
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="edit-name" />
+    </div>
+    <div class="form-group">
+      <label>Street Address</label>
+      <input type="text" id="edit-address" />
+    </div>
+    <div class="form-group">
+      <label>City, State & ZIP</label>
+      <input type="text" id="edit-city" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Latitude</label>
+        <input type="number" step="any" id="edit-lat" />
+      </div>
+      <div class="form-group">
+        <label>Longitude</label>
+        <input type="number" step="any" id="edit-lng" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Type</label>
+      <div class="radio-group" id="edit-type-group">
+        <label class="radio-pill"><input type="radio" name="edit-type" value="restaurant" /><span>Restaurant</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-type" value="park" /><span>Park</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-type" value="playcenter" /><span>Play Center</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-type" value="splashpad" /><span>Splash Pad</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-type" value="museum" /><span>Museum</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-type" value="other" /><span>Other</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Environment</label>
+      <div class="radio-group">
+        <label class="radio-pill"><input type="radio" name="edit-env" value="indoor" /><span>Indoor</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-env" value="outdoor" /><span>Outdoor</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-env" value="both" /><span>Both</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Cost</label>
+      <div class="radio-group">
+        <label class="radio-pill"><input type="radio" name="edit-cost" value="free" /><span>Free</span></label>
+        <label class="radio-pill"><input type="radio" name="edit-cost" value="paid" /><span>Paid</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Admin Notes</label>
+      <textarea id="edit-notes" placeholder="Optional notes…"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="edit-cancel">Cancel</button>
+      <button class="btn btn-green" id="edit-save">Save &amp; Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Issue Detail Modal ══ -->
+<div class="modal-overlay" id="issue-modal">
+  <div class="modal">
+    <button class="modal-close" id="issue-modal-close">✕</button>
+    <h2 id="issue-location-name">Issue Details</h2>
+    <input type="hidden" id="issue-id" />
+
+    <div class="card-grid">
+      <div class="field"><label>Issue Type</label><p id="issue-type-display">—</p></div>
+      <div class="field"><label>Reported By</label><p id="issue-reporter">—</p></div>
+      <div class="field"><label>Date Reported</label><p id="issue-date">—</p></div>
+      <div class="field"><label>Status</label><p id="issue-status-display">—</p></div>
+    </div>
+
+    <div class="form-group">
+      <label>Details</label>
+      <textarea id="issue-details" rows="3" readonly></textarea>
+    </div>
+    <div class="form-group">
+      <label>Admin Notes</label>
+      <textarea id="issue-admin-notes" placeholder="Add resolution notes…"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="issue-cancel">Close</button>
+      <button class="btn btn-green" id="issue-resolve">Mark Resolved</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════
+//   ⚠️  UPDATE THIS CONFIG AFTER FIREBASE MIGRATION
+//   Get values from Firebase Console → Project Settings
+// ═══════════════════════════════════════════════
+// ⚠️  Replace with new config after Firebase migration
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyA-rnGPbXZKNkMF8Qbxw1RlQ4bLiegfr2g",
+  authDomain:        "plaeplace-4412a.firebaseapp.com",
+  projectId:         "plaeplace-4412a",
+  storageBucket:     "plaeplace-4412a.firebasestorage.app",
+  messagingSenderId: "707892944159",
+  appId:             "1:707892944159:web:b2b73833c42394da60a42a",
+};
+
+// ⚠️  Update after migration
+const ADMIN_EMAILS = ['tylerlynncollum@gmail.com'];
+
+// ═══════════════════════════════════════════════
+//   Firebase SDK (CDN — no build step needed)
+// ═══════════════════════════════════════════════
+import { initializeApp }                            from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
+                                                    from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, where, orderBy, serverTimestamp }
+                                                    from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+
+// ═══════════════════════════════════════════════
+//   Init
+// ═══════════════════════════════════════════════
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ═══════════════════════════════════════════════
+//   Constants
+// ═══════════════════════════════════════════════
+const TYPE_LABELS = {
+  restaurant: 'Restaurant', park: 'Park/Playground',
+  playcenter: 'Indoor Play Center', splashpad: 'Splash Pad',
+  museum: "Children's Museum", other: 'Other'
+};
+const ENV_LABELS  = { indoor: 'Indoor', outdoor: 'Outdoor', both: 'Indoor & Outdoor' };
+const COST_LABELS = { free: 'Free', paid: 'Paid' };
+const ISSUE_LABELS = {
+  'incorrect-info': 'Incorrect Information', 'no-play-area': 'No Play Area',
+  'closed': 'Location Closed', 'duplicate': 'Duplicate Listing', 'other': 'Other'
+};
+
+// ═══════════════════════════════════════════════
+//   Toast
+// ═══════════════════════════════════════════════
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ═══════════════════════════════════════════════
+//   Auth
+// ═══════════════════════════════════════════════
+const provider = new GoogleAuthProvider();
+
+document.getElementById('login-btn').addEventListener('click', () => {
+  signInWithPopup(auth, provider).catch(e => toast(e.message, 'error'));
+});
+
+document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+  document.getElementById('login-screen').classList.toggle('hidden', !!isAdmin);
+  document.getElementById('dashboard').classList.toggle('hidden', !isAdmin);
+
+  if (isAdmin) {
+    document.getElementById('sidebar-email').textContent = user.email;
+    loadPending();
+    loadLive();
+    loadIssues();
+  } else if (user) {
+    signOut(auth);
+    toast('Access denied — not an admin account.', 'error');
+  }
+});
+
+// ═══════════════════════════════════════════════
+//   Panel Navigation
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.nav-item[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`panel-${btn.dataset.panel}`).classList.add('active');
+  });
+});
+
+document.getElementById('refresh-pending').addEventListener('click', loadPending);
+document.getElementById('refresh-live').addEventListener('click', loadLive);
+document.getElementById('refresh-issues').addEventListener('click', loadIssues);
+
+// ═══════════════════════════════════════════════
+//   Helpers
+// ═══════════════════════════════════════════════
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function metaBadges(meta) {
+  if (!meta) return '';
+  const parts = [
+    meta.type        ? `<span class="badge badge-blue">${TYPE_LABELS[meta.type] || meta.type}</span>` : '',
+    meta.environment ? `<span class="badge badge-green">${ENV_LABELS[meta.environment] || meta.environment}</span>` : '',
+    meta.cost        ? `<span class="badge badge-yellow">${COST_LABELS[meta.cost] || meta.cost}</span>` : '',
+  ].filter(Boolean);
+  return parts.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">${parts.join('')}</div>` : '';
+}
+
+// ═══════════════════════════════════════════════
+//   Pending Approvals
+// ═══════════════════════════════════════════════
+let pendingCache = [];
+
+async function loadPending() {
+  const el = document.getElementById('pending-list');
+  el.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading…</div>`;
+  try {
+    const q = query(collection(db, 'pendingLocations'), where('status', '==', 'pending'));
+    const snap = await getDocs(q);
+    pendingCache = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+
+    const badge = document.getElementById('pending-badge');
+    if (pendingCache.length > 0) {
+      badge.textContent = pendingCache.length;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    if (pendingCache.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>All caught up — no pending submissions.</div>`;
+      return;
+    }
+
+    el.innerHTML = '';
+    pendingCache.forEach(({ id, data }) => el.appendChild(buildPendingCard(id, data)));
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>${e.message}</div>`;
+    toast(e.message, 'error');
+  }
+}
+
+function buildPendingCard(id, data) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = `pending-${id}`;
+  div.innerHTML = `
+    <div class="card-name">
+      ${data.name || '—'}
+      ${data.userEdited ? '<span class="badge badge-yellow">User Edited ✏️</span>' : ''}
+    </div>
+    <div class="card-grid-3">
+      <div class="field"><label>Address</label><p>${data.address || '—'}</p></div>
+      <div class="field"><label>City / State / ZIP</label><p>${data.cityStateZip || '—'}</p></div>
+      <div class="field"><label>Submitted By</label><p>${data.addedByEmail || '—'}</p></div>
+      <div class="field"><label>Date</label><p>${fmtDate(data.addedAt)}</p></div>
+      <div class="field"><label>Coordinates</label><p>${data.geopoint?.latitude?.toFixed(5)}, ${data.geopoint?.longitude?.toFixed(5)}</p></div>
+    </div>
+    ${metaBadges(data.cubbieMetadata)}
+    ${data.originalMapLink ? `<div class="card-map-link">🔗 ${data.originalMapLink}</div>` : ''}
+    <div class="card-actions">
+      <button class="btn btn-green" data-pending-approve="${id}">✓ Approve</button>
+      <button class="btn btn-honey" data-pending-edit="${id}">✏️ Edit &amp; Approve</button>
+      <button class="btn btn-red"   data-pending-reject="${id}">✕ Reject</button>
+    </div>
+  `;
+
+  div.querySelector(`[data-pending-approve]`).addEventListener('click', () => approvePending(id, data));
+  div.querySelector(`[data-pending-edit]`).addEventListener('click', () => openEditModal('pending-approve', id, data));
+  div.querySelector(`[data-pending-reject]`).addEventListener('click', e => confirmDelete(e.target, 'Reject', () => rejectPending(id, data.name)));
+
+  return div;
+}
+
+async function approvePending(id, data) {
+  try {
+    await addDoc(collection(db, 'liveLocations'), {
+      ...data,
+      status: 'approved',
+      reviewedBy: auth.currentUser.email,
+      reviewedAt: serverTimestamp(),
+      thumbsUp: 0,
+      thumbsDown: 0,
+    });
+    await updateDoc(doc(db, 'pendingLocations', id), {
+      status: 'approved',
+      reviewedBy: auth.currentUser.email,
+      reviewedAt: serverTimestamp(),
+    });
+    removeCard(`pending-${id}`);
+    toast(`"${data.name}" approved!`);
+    updatePendingBadge(-1);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function rejectPending(id, name) {
+  try {
+    await updateDoc(doc(db, 'pendingLocations', id), {
+      status: 'rejected',
+      reviewedBy: auth.currentUser.email,
+      reviewedAt: serverTimestamp(),
+    });
+    removeCard(`pending-${id}`);
+    toast(`"${name}" rejected.`, 'warning');
+    updatePendingBadge(-1);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function updatePendingBadge(delta) {
+  const badge = document.getElementById('pending-badge');
+  const count = (parseInt(badge.textContent) || 0) + delta;
+  badge.textContent = count;
+  if (count <= 0) badge.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════
+//   Live Locations
+// ═══════════════════════════════════════════════
+let liveCache = [];
+let liveSearch = '';
+let liveSort   = 'recent';
+
+async function loadLive() {
+  const el = document.getElementById('live-list');
+  el.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading…</div>`;
+  try {
+    const sortField = liveSort === 'nameAsc' || liveSort === 'nameDesc' ? 'name' : 'reviewedAt';
+    const sortDir   = liveSort === 'oldest' || liveSort === 'nameAsc'   ? 'asc' : 'desc';
+    const q = query(collection(db, 'liveLocations'), orderBy(sortField, sortDir));
+    const snap = await getDocs(q);
+    liveCache = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+    renderLive();
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>${e.message}</div>`;
+    toast(e.message, 'error');
+  }
+}
+
+function renderLive() {
+  const el = document.getElementById('live-list');
+  let filtered = liveCache;
+  if (liveSearch) {
+    const s = liveSearch.toLowerCase();
+    filtered = filtered.filter(({ data }) =>
+      data.name?.toLowerCase().includes(s) || data.address?.toLowerCase().includes(s)
+    );
+  }
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🗺️</div>No locations found.</div>`;
+    return;
+  }
+  el.innerHTML = '';
+  filtered.forEach(({ id, data }) => el.appendChild(buildLiveCard(id, data)));
+}
+
+function buildLiveCard(id, data) {
+  const rating = (data.thumbsUp || 0) - (data.thumbsDown || 0);
+  const rClass = rating > 0 ? 'rating-positive' : rating < 0 ? 'rating-negative' : 'rating-neutral';
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = `live-${id}`;
+  div.innerHTML = `
+    <div class="card-name">
+      ${data.name || '—'}
+      ${data.wasEdited ? '<span class="badge badge-yellow">Edited ✏️</span>' : ''}
+    </div>
+    <div class="card-grid-3">
+      <div class="field"><label>Address</label><p>${data.address || '—'}</p></div>
+      <div class="field"><label>City / State / ZIP</label><p>${data.cityStateZip || '—'}</p></div>
+      <div class="field"><label>Approved By</label><p>${data.reviewedBy || '—'}</p></div>
+      <div class="field"><label>Date Approved</label><p>${fmtDate(data.reviewedAt)}</p></div>
+      <div class="field"><label>Rating</label><p class="${rClass}">🍯 ${data.thumbsUp || 0} · 🐝 ${data.thumbsDown || 0} (${rating >= 0 ? '+' : ''}${rating})</p></div>
+      <div class="field"><label>Coordinates</label><p>${data.geopoint?.latitude?.toFixed(5)}, ${data.geopoint?.longitude?.toFixed(5)}</p></div>
+    </div>
+    ${metaBadges(data.cubbieMetadata)}
+    <div class="card-actions">
+      <button class="btn btn-blue"  data-live-edit="${id}">✏️ Edit</button>
+      <button class="btn btn-red"   data-live-delete="${id}">🗑 Delete</button>
+    </div>
+  `;
+
+  div.querySelector(`[data-live-edit]`).addEventListener('click', () => openEditModal('live', id, data));
+  div.querySelector(`[data-live-delete]`).addEventListener('click', e => confirmDelete(e.target, 'Delete', () => deleteLive(id, data.name)));
+
+  return div;
+}
+
+async function deleteLive(id, name) {
+  try {
+    await deleteDoc(doc(db, 'liveLocations', id));
+    removeCard(`live-${id}`);
+    toast(`"${name}" deleted.`, 'warning');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+document.getElementById('live-search').addEventListener('input', e => {
+  liveSearch = e.target.value.trim();
+  renderLive();
+});
+
+document.getElementById('live-sort').addEventListener('change', e => {
+  liveSort = e.target.value;
+  loadLive();
+});
+
+// ═══════════════════════════════════════════════
+//   Issues
+// ═══════════════════════════════════════════════
+let currentIssuesTab = 'open';
+
+async function loadIssues() {
+  await Promise.all([loadOpenIssues(), loadResolvedIssues()]);
+}
+
+async function loadOpenIssues() {
+  const el = document.getElementById('issues-open-list');
+  el.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading…</div>`;
+  try {
+    const q = query(collection(db, 'issueReports'), where('resolved', '==', false));
+    const snap = await getDocs(q);
+    const issues = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+      .sort((a, b) => (b.data.reportedAt?.seconds || 0) - (a.data.reportedAt?.seconds || 0));
+
+    const badge = document.getElementById('issues-badge');
+    if (issues.length > 0) {
+      badge.textContent = issues.length;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    if (issues.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>No open issues!</div>`;
+      return;
+    }
+    el.innerHTML = '';
+    issues.forEach(({ id, data }) => el.appendChild(buildIssueCard(id, data, false)));
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>${e.message}</div>`;
+    toast(e.message, 'error');
+  }
+}
+
+async function loadResolvedIssues() {
+  const el = document.getElementById('issues-resolved-list');
+  el.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading…</div>`;
+  try {
+    const q = query(collection(db, 'issueReports'), where('resolved', '==', true));
+    const snap = await getDocs(q);
+    const issues = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+      .sort((a, b) => (b.data.resolvedAt?.seconds || 0) - (a.data.resolvedAt?.seconds || 0));
+
+    if (issues.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📂</div>No resolved issues yet.</div>`;
+      return;
+    }
+    el.innerHTML = '';
+    issues.forEach(({ id, data }) => el.appendChild(buildIssueCard(id, data, true)));
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>${e.message}</div>`;
+  }
+}
+
+function buildIssueCard(id, data, isResolved) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = `issue-${id}`;
+  div.innerHTML = `
+    <div class="card-name">
+      ${data.locationName || 'Unknown location'}
+      <span class="badge ${isResolved ? 'badge-green' : 'badge-yellow'}">${isResolved ? 'Resolved ✓' : 'Open ⚠️'}</span>
+    </div>
+    <div class="card-grid">
+      <div class="field"><label>Issue Type</label><p>${ISSUE_LABELS[data.issueType] || data.issueType || '—'}</p></div>
+      <div class="field"><label>Reported By</label><p>${data.reportedByEmail || 'Anonymous'}</p></div>
+      <div class="field"><label>Date Reported</label><p>${fmtDate(data.reportedAt)}</p></div>
+      ${isResolved ? `<div class="field"><label>Resolved</label><p>${fmtDate(data.resolvedAt)}</p></div>` : ''}
+    </div>
+    ${data.details ? `<p style="font-size:0.9rem;color:var(--muted);margin-top:8px;">${data.details}</p>` : ''}
+    ${data.adminNotes ? `<p style="font-size:0.85rem;font-style:italic;color:var(--muted);margin-top:6px;">Admin: ${data.adminNotes}</p>` : ''}
+    <div class="card-actions">
+      <button class="btn btn-blue" data-issue-view="${id}">View Details</button>
+      ${!isResolved ? `<button class="btn btn-green" data-issue-resolve="${id}">Mark Resolved</button>` : ''}
+    </div>
+  `;
+
+  div.querySelector(`[data-issue-view]`).addEventListener('click', () => openIssueModal(id, data));
+  if (!isResolved) {
+    div.querySelector(`[data-issue-resolve]`).addEventListener('click', () => resolveIssue(id, ''));
+  }
+
+  return div;
+}
+
+async function resolveIssue(id, notes) {
+  try {
+    await updateDoc(doc(db, 'issueReports', id), {
+      resolved: true,
+      adminNotes: notes,
+      resolvedBy: auth.currentUser.email,
+      resolvedAt: serverTimestamp(),
+    });
+    toast('Issue marked as resolved.');
+    await loadIssues();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+document.querySelectorAll('[data-issues-tab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentIssuesTab = btn.dataset.issuesTab;
+    document.querySelectorAll('[data-issues-tab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('issues-open-list').classList.toggle('hidden', currentIssuesTab !== 'open');
+    document.getElementById('issues-resolved-list').classList.toggle('hidden', currentIssuesTab !== 'resolved');
+  });
+});
+
+// ═══════════════════════════════════════════════
+//   Edit Modal
+// ═══════════════════════════════════════════════
+function openEditModal(mode, id, data) {
+  document.getElementById('edit-id').value   = id;
+  document.getElementById('edit-mode').value = mode;
+  document.getElementById('edit-modal-title').textContent = mode === 'pending-approve' ? 'Edit & Approve' : 'Edit Location';
+  document.getElementById('edit-save').textContent = mode === 'pending-approve' ? 'Save & Approve' : 'Save Changes';
+
+  document.getElementById('edit-name').value    = data.name || '';
+  document.getElementById('edit-address').value = data.address || '';
+  document.getElementById('edit-city').value    = data.cityStateZip || '';
+  document.getElementById('edit-lat').value     = data.geopoint?.latitude || '';
+  document.getElementById('edit-lng').value     = data.geopoint?.longitude || '';
+  document.getElementById('edit-notes').value   = data.adminNotes || '';
+
+  // Reset radios
+  document.querySelectorAll('input[name="edit-type"], input[name="edit-env"], input[name="edit-cost"]')
+    .forEach(r => r.checked = false);
+
+  if (data.cubbieMetadata) {
+    const m = data.cubbieMetadata;
+    if (m.type)        { const r = document.querySelector(`input[name="edit-type"][value="${m.type}"]`);        if (r) r.checked = true; }
+    if (m.environment) { const r = document.querySelector(`input[name="edit-env"][value="${m.environment}"]`);  if (r) r.checked = true; }
+    if (m.cost)        { const r = document.querySelector(`input[name="edit-cost"][value="${m.cost}"]`);        if (r) r.checked = true; }
+  }
+
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+document.getElementById('edit-modal-close').addEventListener('click', closeEditModal);
+document.getElementById('edit-cancel').addEventListener('click', closeEditModal);
+document.getElementById('edit-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
+
+document.getElementById('edit-save').addEventListener('click', async () => {
+  const id   = document.getElementById('edit-id').value;
+  const mode = document.getElementById('edit-mode').value;
+  const name = document.getElementById('edit-name').value.trim();
+  const address = document.getElementById('edit-address').value.trim();
+  const city    = document.getElementById('edit-city').value.trim();
+  const lat     = parseFloat(document.getElementById('edit-lat').value);
+  const lng     = parseFloat(document.getElementById('edit-lng').value);
+  const notes   = document.getElementById('edit-notes').value.trim();
+
+  if (!name || !address || isNaN(lat) || isNaN(lng)) {
+    toast('Please fill in all required fields.', 'warning');
+    return;
+  }
+
+  const typeR = document.querySelector('input[name="edit-type"]:checked');
+  const envR  = document.querySelector('input[name="edit-env"]:checked');
+  const costR = document.querySelector('input[name="edit-cost"]:checked');
+  const cubbieMetadata = {
+    type:        typeR ? typeR.value : null,
+    environment: envR  ? envR.value  : null,
+    cost:        costR ? costR.value : null,
+  };
+
+  const btn = document.getElementById('edit-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  try {
+    if (mode === 'pending-approve') {
+      const pendingSnap = await getDoc(doc(db, 'pendingLocations', id));
+      const pendingData = pendingSnap.data();
+      await addDoc(collection(db, 'liveLocations'), {
+        name, address, cityStateZip: city,
+        geopoint: { latitude: lat, longitude: lng },
+        originalMapLink: pendingData.originalMapLink || null,
+        originalSubmission: {
+          name: pendingData.name, address: pendingData.address,
+          addedBy: pendingData.addedBy, addedByEmail: pendingData.addedByEmail,
+          addedAt: pendingData.addedAt,
+        },
+        cubbieMetadata, adminNotes: notes,
+        wasEdited: true, editedBy: auth.currentUser.email,
+        thumbsUp: 0, thumbsDown: 0,
+        status: 'approved',
+        reviewedBy: auth.currentUser.email,
+        reviewedAt: serverTimestamp(),
+      });
+      await updateDoc(doc(db, 'pendingLocations', id), {
+        status: 'approved-with-edits',
+        reviewedBy: auth.currentUser.email,
+        reviewedAt: serverTimestamp(),
+      });
+      removeCard(`pending-${id}`);
+      updatePendingBadge(-1);
+      toast(`"${name}" approved with edits!`);
+    } else {
+      await updateDoc(doc(db, 'liveLocations', id), {
+        name, address, cityStateZip: city,
+        geopoint: { latitude: lat, longitude: lng },
+        cubbieMetadata, adminNotes: notes,
+        wasEdited: true, editedBy: auth.currentUser.email,
+        lastEditedAt: serverTimestamp(), status: 'approved-with-edits',
+      });
+      toast(`"${name}" updated.`);
+      loadLive();
+    }
+    closeEditModal();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = mode === 'pending-approve' ? 'Save & Approve' : 'Save Changes';
+  }
+});
+
+// ═══════════════════════════════════════════════
+//   Issue Modal
+// ═══════════════════════════════════════════════
+function openIssueModal(id, data) {
+  document.getElementById('issue-id').value = id;
+  document.getElementById('issue-location-name').textContent = data.locationName || 'Issue Details';
+  document.getElementById('issue-type-display').textContent  = ISSUE_LABELS[data.issueType] || data.issueType || '—';
+  document.getElementById('issue-reporter').textContent      = data.reportedByEmail || 'Anonymous';
+  document.getElementById('issue-date').textContent          = fmtDate(data.reportedAt);
+  document.getElementById('issue-status-display').textContent = data.resolved ? 'Resolved' : 'Open';
+  document.getElementById('issue-details').value             = data.details || '';
+  document.getElementById('issue-admin-notes').value         = data.adminNotes || '';
+  document.getElementById('issue-admin-notes').readOnly      = data.resolved;
+  document.getElementById('issue-resolve').classList.toggle('hidden', data.resolved);
+  document.getElementById('issue-modal').classList.add('open');
+}
+
+function closeIssueModal() {
+  document.getElementById('issue-modal').classList.remove('open');
+}
+
+document.getElementById('issue-modal-close').addEventListener('click', closeIssueModal);
+document.getElementById('issue-cancel').addEventListener('click', closeIssueModal);
+document.getElementById('issue-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeIssueModal(); });
+
+document.getElementById('issue-resolve').addEventListener('click', async () => {
+  const id    = document.getElementById('issue-id').value;
+  const notes = document.getElementById('issue-admin-notes').value.trim();
+  closeIssueModal();
+  await resolveIssue(id, notes);
+});
+
+// ═══════════════════════════════════════════════
+//   Shared UI helpers
+// ═══════════════════════════════════════════════
+function removeCard(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.classList.add('fade-out');
+  setTimeout(() => el.remove(), 400);
+}
+
+function confirmDelete(btn, label, onConfirm) {
+  if (btn.dataset.confirming === 'true') {
+    onConfirm();
+    return;
+  }
+  const orig = btn.textContent;
+  btn.textContent = 'Are you sure?';
+  btn.dataset.confirming = 'true';
+  setTimeout(() => {
+    if (btn.dataset.confirming === 'true') {
+      btn.textContent = orig;
+      delete btn.dataset.confirming;
+    }
+  }, 3000);
+}
+
+// Keyboard: close modals on ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeEditModal(); closeIssueModal(); }
+});
+</script>
+</body>
+</html>
