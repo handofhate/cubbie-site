@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — Cubbie</title>
+  <link rel="icon" href="cubbieicon.png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #3B7A57;
+      --honey:  #F2A65A;
+      --light:  #F4FAF6;
+      --dark:   #1C2B22;
+      --text:   #2A3D33;
+      --muted:  #6B8076;
+      --border: #D4E8DB;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      background: linear-gradient(145deg, #1C3A27 0%, #2D5A3D 55%, #3B7A57 100%);
+      color: #fff;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+
+    header a {
+      display: inline-block;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+    header a:hover { color: #fff; text-decoration: none; }
+
+    header h1 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; }
+    header p  { color: rgba(255,255,255,0.75); font-size: 0.9rem; }
+
+    main {
+      max-width: 720px;
+      margin: 48px auto;
+      padding: 0 24px 80px;
+    }
+
+    .contact-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .contact-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .contact-box h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 6px;
+      border: none;
+      padding: 0;
+    }
+
+    .contact-box p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .contact-box a {
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin: 36px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .section-intro {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .faq { margin-bottom: 40px; }
+
+    .faq-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 12px;
+    }
+
+    .faq-item h3 {
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .faq-item p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 24px;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--green); }
+
+    @media (max-width: 520px) {
+      .contact-box { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/">← Back to Cubbie</a>
+  <h1>Support</h1>
+  <p>We're here to help 🐻</p>
+</header>
+
+<main>
+
+  <div class="contact-box">
+    <div class="contact-icon">✉️</div>
+    <div>
+      <h2>Get in Touch</h2>
+      <p>Have a question, found a bug, or want to report something? Email us at <a href="mailto:support@mycubbie.com">support@mycubbie.com</a> and we'll get back to you within 1–2 business days.</p>
+    </div>
+  </div>
+
+  <h2>Frequently Asked Questions</h2>
+  <p class="section-intro">Quick answers to common questions about using Cubbie.</p>
+
+  <div class="faq">
+
+    <div class="faq-item">
+      <h3>How do I find kid-friendly places near me?</h3>
+      <p>Open Cubbie and allow location access when prompted. The map will center on your location and show nearby spots. You can also use the list view and sort by distance, or use filters to narrow down by type (park, playground, restaurant, etc.), environment (indoor/outdoor), and cost (free/paid).</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>How do I submit a new location?</h3>
+      <p>Tap the "+" button to go to the Add page. Paste a Google Maps or Apple Maps link for the place you want to add. Cubbie will extract the location info automatically. Fill in the details, choose the category, and submit. An admin will review it before it goes live — usually within a few days.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>How does the voting (🍯 / 🐝) work?</h3>
+      <p>Tap the honeypot 🍯 to give a spot a thumbs up, or the bee 🐝 to give it a thumbs down. You need to be signed in with your Google account to vote. You can change your vote at any time. Votes help the community sort great spots to the top.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>A location has wrong information or no longer exists. What do I do?</h3>
+      <p>Open the location's detail page and tap "Report Issue." Choose the issue type (incorrect info, closed, no play area, duplicate, etc.) and optionally add a note. A Cubbie admin will review the report and update or remove the listing.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Do I need to sign in to use Cubbie?</h3>
+      <p>You can browse the map and view locations without signing in. However, you need to sign in with your Google account to vote on locations or submit new ones.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>How do I sign in?</h3>
+      <p>Tap "Sign In" in the sidebar and choose "Sign in with Google." Cubbie uses Google Sign-In — no passwords to create or manage.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>How do I remove ads?</h3>
+      <p>Open the Settings page in the app and tap "Remove Ads." This is a one-time in-app purchase processed by Apple. Once purchased, ads will be disabled permanently. You can restore the purchase on any device using the same Apple ID via "Restore Purchases" in Settings.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>How do I delete my account or data?</h3>
+      <p>Email us at <a href="mailto:support@mycubbie.com">support@mycubbie.com</a> and we'll delete your account data within 30 days. This includes your submitted locations, votes, and issue reports.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Something isn't working right.</h3>
+      <p>Try closing and reopening the app. If the issue persists, email us at <a href="mailto:support@mycubbie.com">support@mycubbie.com</a> with a description of what happened and what device/iOS version you're on. Screenshots are always helpful!</p>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <a href="/">Cubbie</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a>
+</footer>
+
+</body>
+</html>

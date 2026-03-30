@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cubbie — Find Places Kids Love</title>
+  <meta name="description" content="Cubbie is the community-powered map for parents. Discover kid-friendly restaurants, playgrounds, splash pads, and more — rated by real families near you." />
+  <link rel="icon" href="cubbieicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #3B7A57;
+      --green2: #2D5A3D;
+      --honey:  #F2A65A;
+      --honey2: #E8903A;
+      --light:  #F4FAF6;
+      --dark:   #1C2B22;
+      --text:   #2A3D33;
+      --muted:  #6B8076;
+      --card:   #FFFFFF;
+      --border: #D4E8DB;
+      --warm:   #FBF7F2;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(244, 250, 246, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--dark);
+    }
+
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+
+    .nav-logo span { color: var(--green); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: opacity 0.2s, transform 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-outline { background: transparent; color: var(--green); border: 2px solid var(--green); }
+    .btn-white   { background: #fff; color: var(--green); }
+    .btn-honey   { background: var(--honey); color: #fff; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(145deg, #1C3A27 0%, #2D5A3D 55%, #3B7A57 100%);
+      color: #fff;
+      text-align: center;
+      padding: 80px 24px 100px;
+    }
+
+    .hero-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 24px;
+      margin: 0 auto 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 span { color: var(--honey); }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: rgba(255,255,255,0.82);
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .store-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      color: var(--dark);
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .store-badge:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .store-badge i { font-size: 1.4rem; }
+
+    .coming-soon-tag {
+      display: inline-block;
+      background: var(--honey);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 50px;
+      margin-top: 20px;
+    }
+
+    /* ── Section shared ── */
+    section { padding: 80px 24px; }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 14px;
+    }
+
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .section-head { text-align: center; margin-bottom: 56px; }
+
+    /* ── Features ── */
+    .features { background: var(--card); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(59,122,87,0.1); }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── How It Works ── */
+    .how { background: var(--light); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .step-num {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .step p { font-size: 0.92rem; color: var(--muted); }
+
+    /* ── CTA ── */
+    .cta {
+      background: linear-gradient(145deg, #1C3A27 0%, #2D5A3D 55%, #3B7A57 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .cta h2 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .cta h2 span { color: var(--honey); }
+
+    .cta p {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 36px;
+      font-size: 1.05rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.6);
+      padding: 40px 24px;
+      text-align: center;
+      font-size: 0.88rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--honey); }
+
+    .footer-social {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .footer-social a {
+      color: rgba(255,255,255,0.5);
+      font-size: 1.1rem;
+      transition: color 0.2s;
+    }
+    .footer-social a:hover { color: var(--honey); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero { padding: 60px 20px 72px; }
+      section { padding: 60px 20px; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ Nav ══ -->
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="cubbieicon.png" alt="Cubbie" onerror="this.style.display='none'" />
+    <span>Cubbie</span>
+  </a>
+  <button class="btn btn-primary" onclick="openModal()">Download</button>
+</nav>
+
+<!-- ══ Hero ══ -->
+<section class="hero">
+  <img src="cubbieicon.png" alt="Cubbie app icon" class="hero-icon" onerror="this.style.display='none'" />
+  <h1>Find the best places for <span>little ones</span></h1>
+  <p>The community-powered map for parents. Discover kid-friendly restaurants, playgrounds, splash pads, and more — rated by real families near you.</p>
+  <div class="hero-buttons">
+    <a href="#" class="store-badge" onclick="openModal(); return false;">
+      <i class="fab fa-apple"></i>
+      <div>
+        <div style="font-size:0.72rem; font-weight:600; opacity:0.75;">Download on the</div>
+        <div>App Store</div>
+      </div>
+    </a>
+  </div>
+  <div><span class="coming-soon-tag">Coming Soon to iOS</span></div>
+</section>
+
+<!-- ══ Features ══ -->
+<section class="features">
+  <div class="section-head">
+    <div class="section-label">What Cubbie Does</div>
+    <h2 class="section-title">Everything parents need to find fun</h2>
+    <p class="section-sub">Stop guessing. Let the community guide you to the best spots in your area.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🗺️</span>
+      <h3>Explore the Map</h3>
+      <p>See kid-friendly spots near you on an interactive map. Browse by location or scroll a sorted list.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🍯</span>
+      <h3>Community Ratings</h3>
+      <p>Honeypot and bee votes from parents who've actually been there. Know before you go.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔍</span>
+      <h3>Smart Filters</h3>
+      <p>Indoor or outdoor, food options, free or paid — filter down to exactly what fits your family's day.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">➕</span>
+      <h3>Submit a Spot</h3>
+      <p>Know a great place? Drop a Google or Apple Maps link and add it for the whole community.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">✅</span>
+      <h3>Reviewed & Verified</h3>
+      <p>Every submission is reviewed before going live. No spam, no junk — just trustworthy places.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌳</span>
+      <h3>All Kinds of Fun</h3>
+      <p>Parks, playgrounds, restaurants with play areas, splash pads, museums, and more.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ How It Works ══ -->
+<section class="how">
+  <div class="section-head">
+    <div class="section-label">Getting Started</div>
+    <h2 class="section-title">Up and running in seconds</h2>
+    <p class="section-sub">No setup, no sign-up walls. Open the app and start exploring.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Open &amp; Explore</h3>
+      <p>Allow location access and see what kid-friendly spots are near you right away.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Filter &amp; Discover</h3>
+      <p>Narrow down by type, environment, cost, or distance to find your perfect outing.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Share the Love 🐾</h3>
+      <p>Vote on spots, submit new ones, and help families everywhere find great places.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="cta">
+  <h2>Ready to <span>explore?</span></h2>
+  <p>Download Cubbie and find your family's next adventure.</p>
+  <button class="btn btn-white" onclick="openModal()">Download on App Store</button>
+</section>
+
+<!-- ══ Footer ══ -->
+<footer>
+  <div class="footer-social">
+    <!-- Add social links here when available -->
+  </div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="support.html">Support</a>
+  </div>
+  <p>© 2026 Cubbie. All rights reserved.</p>
+</footer>
+
+<!-- ══ Coming Soon Modal ══ -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    <div style="font-size:2.5rem; margin-bottom:14px;">🐻</div>
+    <h2>Coming Soon!</h2>
+    <p>Cubbie is heading to the App Store soon. Check back here when it drops.</p>
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="closeModal()">Got it!</button>
+  </div>
+</div>
+
+<script>
+  function openModal() { document.getElementById('modal').classList.add('open'); }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function handleOverlayClick(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+</body>
+</html>
